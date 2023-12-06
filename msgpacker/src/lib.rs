@@ -8,6 +8,7 @@ extern crate alloc;
 #[cfg(feature = "alloc")]
 mod extension;
 
+mod binary;
 mod error;
 mod format;
 mod helpers;
@@ -108,6 +109,10 @@ pub trait Unpackable: Sized {
 /// Required types for the library.
 pub mod prelude {
     pub use super::{Error, Packable, Unpackable};
+
+    #[cfg(feature = "alloc")]
+    pub use super::binary::alloc::MsgPackerBin;
+    pub use super::binary::MsgPackerBinSlice;
 
     #[cfg(feature = "derive")]
     pub use super::MsgPacker;
