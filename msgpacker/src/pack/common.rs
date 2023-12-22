@@ -42,11 +42,8 @@ where
         T: Extend<u8>,
     {
         match self {
-            Some(t) => t.pack(buf),
-            None => {
-                buf.extend(iter::once(Format::NIL));
-                1
-            }
+            Some(t) => 1u8.pack(buf) + t.pack(buf),
+            None => 0u8.pack(buf),
         }
     }
 }

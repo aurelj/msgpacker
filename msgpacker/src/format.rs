@@ -1,7 +1,6 @@
 pub struct Format {}
 
 impl Format {
-    pub const NIL: u8 = 0xc0;
     pub const TRUE: u8 = 0xc3;
     pub const FALSE: u8 = 0xc2;
     pub const POSITIVE_FIXINT: u8 = 0x7f;
