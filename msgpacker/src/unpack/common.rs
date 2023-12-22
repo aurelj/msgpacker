@@ -65,26 +65,24 @@ where
     type Error = <X as Unpackable>::Error;
 
     fn unpack(buf: &[u8]) -> Result<(usize, Self), Self::Error> {
-        if buf.is_empty() {
-            return Err(Error::BufferTooShort.into());
+        match u8::unpack(buf)? {
+            (1, 0) => Ok((1, None)),
+            (1, 1) => X::unpack(&buf[1..]).map(|(n, x)| (n + 1, Some(x))),
+            _ => Err(Error::InvalidEnumVariant.into()),
         }
-        if buf[0] == Format::NIL {
-            return Ok((1, None));
-        }
-        X::unpack(buf).map(|(n, x)| (n, Some(x)))
     }
 
     fn unpack_iter<I>(bytes: I) -> Result<(usize, Self), Self::Error>
     where
         I: IntoIterator<Item = u8>,
     {
-        let mut bytes = bytes.into_iter().peekable();
-        let format = *bytes.peek().ok_or(Error::BufferTooShort)?;
-        if format == Format::NIL {
-            bytes.next();
-            return Ok((1, None));
+        let mut bytes = bytes.into_iter();
+        match bytes.next() {
+            Some(0) => Ok((1, None)),
+            Some(1) => X::unpack_iter(bytes).map(|(n, x)| (n + 1, Some(x))),
+            Some(_) => Err(Error::InvalidEnumVariant.into()),
+            None => Err(Error::BufferTooShort.into()),
         }
-        X::unpack_iter(bytes).map(|(n, x)| (n, Some(x)))
     }
 }
 
