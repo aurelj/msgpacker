@@ -1,5 +1,6 @@
 use super::{Format, Packable};
 use core::iter;
+use core::num::{NonZero, ZeroablePrimitive};
 
 impl Packable for u8 {
     fn pack<T>(&self, buf: &mut T) -> usize
@@ -324,6 +325,21 @@ impl Packable for isize {
         } else {
             buf.extend(iter::once(Format::INT64).chain(self.to_be_bytes()));
             9
+        }
+    }
+}
+
+impl<X> Packable for Option<NonZero<X>>
+where
+    X: Packable + ZeroablePrimitive,
+{
+    fn pack<T>(&self, buf: &mut T) -> usize
+    where
+        T: Extend<u8>,
+    {
+        match self {
+            Some(t) => X::from(*t).pack(buf),
+            None => 0u8.pack(buf),
         }
     }
 }

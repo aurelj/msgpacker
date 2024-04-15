@@ -1,5 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(
+    nonzero_internals,
+    generic_nonzero,
     iter_array_chunks,
     maybe_uninit_array_assume_init,
     maybe_uninit_uninit_array

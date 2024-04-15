@@ -1,3 +1,5 @@
+use core::num::{NonZero, ZeroablePrimitive};
+
 use super::{
     helpers::{take_byte, take_byte_iter, take_num, take_num_iter},
     Error, Format, Unpackable,
@@ -396,5 +398,23 @@ impl Unpackable for isize {
             Format::INT64 => take_num_iter(bytes, i64::from_be_bytes).map(|v| (9, v as isize)),
             _ => Err(Error::UnexpectedFormatTag),
         }
+    }
+}
+
+impl<X> Unpackable for Option<NonZero<X>>
+where
+    X: Unpackable + ZeroablePrimitive,
+{
+    type Error = <X as Unpackable>::Error;
+
+    fn unpack(buf: &[u8]) -> Result<(usize, Self), Self::Error> {
+        X::unpack(buf).map(|(s, v)| (s, NonZero::new(v)))
+    }
+
+    fn unpack_iter<I>(bytes: I) -> Result<(usize, Self), Self::Error>
+    where
+        I: IntoIterator<Item = u8>,
+    {
+        X::unpack_iter(bytes).map(|(s, v)| (s, NonZero::new(v)))
     }
 }
